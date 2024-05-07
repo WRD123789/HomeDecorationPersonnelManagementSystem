@@ -267,50 +267,6 @@ QPushButton:checked
     color: #31363b;
 }
 
-QComboBox:hover:pressed:editable
-{
-    background-color: #eff0f1;
-}
-
-QComboBox QAbstractItemView
-{
-    /* This happens for the drop-down menu always, whether editable or not.*/
-    background-color: #eff0f1;
-    selection-background-color: rgba(45, 147, 200, 0.5);
-    outline-color: 0em;
-    border-radius: 0.09em;
-}
-
-QComboBox::drop-down
-{
-    subcontrol-origin: padding;
-    subcontrol-position: top right;
-    width: 0.65em;
-
-    border-left-width: 0em;
-    border-left-style: solid;
-    border-top-right-radius: 0.13em;
-    border-bottom-right-radius: 0.13em;
-}
-
-QComboBox::down-arrow
-{
-    border-image: url(:/light/down_arrow_disabled.svg);
-    width: 0.8em;
-    height: 0.5em;
-    margin-right: 0.41em;
-}
-
-QComboBox::down-arrow:on,
-QComboBox::down-arrow:hover,
-QComboBox::down-arrow:focus
-{
-    border-image: url(:/light/down_arrow.svg);
-    width: 0.8em;
-    height: 0.5em;
-    margin-right: 0.41em;
-}
-
 QHeaderView
 {
     background-color: #eff0f1;

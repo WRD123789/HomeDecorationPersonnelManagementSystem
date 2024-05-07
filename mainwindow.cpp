@@ -10,11 +10,12 @@
 #include "projectdirectorclient.h"
 #include "projectmanagerclient.h"
 #include "adminclient.h"
+#include "connectdatabase.h"
 
 #include <QMessageBox>
-#include <QSqlDatabase>
 #include <QSqlQuery>
 #include <QDebug>
+#include <QSqlDatabase>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -76,6 +77,12 @@ MainWindow::~MainWindow()
 
 void MainWindow::on_loginBtn_clicked()
 {
+    QSqlDatabase db = QSqlDatabase::database();
+    if (!db.isOpen()) {
+        ConnectDataBase connectDataBase;
+        connectDataBase.exec();
+    }
+
     // 根据账号和密码栏获取输入的字符串
     QString num = ui->accountLineEdit->text();
     QString pwd = ui->pwdLineEdit->text();
@@ -84,18 +91,6 @@ void MainWindow::on_loginBtn_clicked()
     if (num.isEmpty() || pwd.isEmpty())
     {
         QMessageBox::warning(this, "提示", "账号或密码不能为空!");
-        return;
-    }
-
-    // 连接数据库
-    QSqlDatabase db = QSqlDatabase::addDatabase("QMYSQL");
-    db.setHostName("127.0.0.1");
-    db.setPort(3306);
-    db.setDatabaseName("home_decoration");
-    db.setUserName("root");
-    db.setPassword("12345678");
-    if(!db.open()){
-        QMessageBox::critical(this, "错误", "数据库连接失败!");
         return;
     }
 

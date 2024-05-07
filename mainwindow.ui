@@ -48,7 +48,7 @@
     <property name="styleSheet">
      <string notr="true">QFrame 
 {
-	background-color: rgba(255, 255, 255, 77);
+	background-color: rgba(255, 255, 255, 70);
 }
 
 QLineEdit

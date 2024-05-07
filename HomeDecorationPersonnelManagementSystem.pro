@@ -18,6 +18,7 @@ SOURCES += \
     adminemployeetable.cpp \
     adminprojecttable.cpp \
     client.cpp \
+    connectdatabase.cpp \
     customermodel.cpp \
     customertable.cpp \
     designdirectorclient.cpp \
@@ -59,6 +60,7 @@ HEADERS += \
     adminemployeetable.h \
     adminprojecttable.h \
     client.h \
+    connectdatabase.h \
     customer.h \
     customermodel.h \
     customertable.h \
@@ -102,7 +104,8 @@ FORMS += \
     addcustomer.ui \
     modifyfinance.ui \
     addemployee.ui \
-    modifycustomer.ui
+    modifycustomer.ui \
+    connectdatabase.ui
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

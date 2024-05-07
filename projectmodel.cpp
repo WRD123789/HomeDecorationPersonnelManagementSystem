@@ -204,7 +204,7 @@ QVector<Project> ProjectModel::queryAllSolved()
                       "WHERE progress NOT IN ('业务员沟通', '设计总监分配')");
     } else if (identity == "设计师") {
         sql = QString("SELECT * "
-                      "FROM project"
+                      "FROM project "
                       "WHERE `designer_id` = '%1' "
                       "AND progress NOT IN "
                       "('量房设计', '平面布置图设计', '深入图设计', '效果图设计', '预算表提交') ")
