@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>修改密码</string>
+   <string>修改金额</string>
   </property>
   <property name="styleSheet">
    <string notr="true">QDialog {

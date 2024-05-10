@@ -26,6 +26,8 @@ public:
     bool update(Finance &fin);
 
     QVector<Finance> queryAll();
+
+    QVector<Finance> queryAllUnSolved();
 };
 
 #endif // FINANCEMODEL_H

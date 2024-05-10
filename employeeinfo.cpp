@@ -41,13 +41,6 @@ void EmployeeInfo::commit()
     }
 }
 
-void EmployeeInfo::modifyPwd()
-{
-    Account acc = AccountModel().queryById(self.getId());
-    ModifyPassword modifyPassword(acc);
-    modifyPassword.exec();
-}
-
 void EmployeeInfo::loadInfo()
 {
     ui->numberLineEdit->setText(self.getId());
@@ -57,3 +50,12 @@ void EmployeeInfo::loadInfo()
     ui->phoneLineEdit ->setText(self.getPhone());
     ui->emailLineEdit ->setText(self.getEmail());
 }
+
+void EmployeeInfo::modifyPwd()
+{
+    Account acc = AccountModel().queryById(self.getId());
+    ModifyPassword modifyPassword(acc);
+    modifyPassword.exec();
+}
+
+

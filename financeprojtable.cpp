@@ -39,7 +39,7 @@ void FinanceProjTable::loadData()
     }
 
     finMap.clear();
-    auto finVec = finModel.queryAll();
+    auto finVec = finModel.queryAllUnSolved();
     for (auto& fin : finVec) {
         finMap.insert(fin.getId(), fin);
     }
@@ -48,7 +48,7 @@ void FinanceProjTable::loadData()
 void FinanceProjTable::showData()
 {
     int row = 0;
-    ui->tableWidget->setRowCount(projMap.size());
+    ui->tableWidget->setRowCount(finMap.size());
 
     for (auto& [finId, fin] : finMap.toStdMap()) {
         Project proj = projMap[fin.getProjId()];

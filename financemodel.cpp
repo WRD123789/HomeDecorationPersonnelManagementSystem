@@ -110,3 +110,28 @@ QVector<Finance> FinanceModel::queryAll()
     }
     return finVec;
 }
+
+QVector<Finance> FinanceModel::queryAllUnSolved()
+{
+    QVector<Finance> finVec{};
+
+    QSqlQuery query;
+    QString sql = QString("SELECT A.id, A.deposit, A.cost, A.amount, A.proj_id "
+                          "FROM finance AS A "
+                          "INNER JOIN project AS B ON A.proj_id = B.id "
+                          "WHERE B.progress IN ('业务员沟通', '设计总监分配', '量房设计', "
+                          "'平面布置图设计', '合同设计', '定金交付')");
+    query.exec(sql);
+
+    while(query.next()) {
+        Finance fin;
+        fin.setId(query.value(FIN_ID).toString());
+        fin.setDeposit(query.value(FIN_DEPOSIT).toDouble());
+        fin.setCost(query.value(FIN_COST).toDouble());
+        fin.setAmount(query.value(FIN_AMOUNT).toDouble());
+        fin.setProjId(query.value(FIN_PROJ_ID).toString());
+        finVec.push_back(fin);
+    }
+    return finVec;
+}
+
