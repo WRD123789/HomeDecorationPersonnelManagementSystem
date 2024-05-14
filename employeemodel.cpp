@@ -1,65 +1,169 @@
 #include "employeemodel.h"
+#include "globalvariable.h"
 
-#include <QSqlQuery>
+#include <QJsonArray>
+#include <QJsonDocument>
+#include <QJsonObject>
+#include <QTcpSocket>
 #include <QVariant>
 
-#define EMP_ID       0
-#define EMP_NAME     1
-#define EMP_AGE      2
-#define EMP_GENDER   3
-#define EMP_PHONE    4
-#define EMP_EMAIL    5
+#define EMP_ID       "id"
+#define EMP_NAME     "name"
+#define EMP_AGE      "age"
+#define EMP_GENDER   "gender"
+#define EMP_PHONE    "phone"
+#define EMP_EMAIL    "email"
 
 
 EmployeeModel::EmployeeModel() {}
 
 Employee EmployeeModel::queryById(QString id)
 {
-    QSqlQuery query;
+    // 尝试连接服务器
+    QTcpSocket socket;
+    socket.connectToHost(ipAddress, port);
+
+    if (!socket.waitForConnected()) {
+        qWarning() << "连接服务器失败: " << socket.errorString();
+        return Employee();
+    }
+
     QString sql = QString("SELECT * "
                           "FROM employee "
                           "WHERE id = '%1'").arg(id);
-    query.exec(sql);
+    QByteArray requestData = sql.toUtf8();
 
-    if (query.next()) {
-        Employee emp;
-        emp.setId(query.value(EMP_ID).toString());
-        emp.setName(query.value(EMP_NAME).toString());
-        emp.setAge(query.value(EMP_AGE).toInt());
-        emp.setGender(query.value(EMP_GENDER).toString());
-        emp.setPhone(query.value(EMP_PHONE).toString());
-        emp.setEmail(query.value(EMP_EMAIL).toString());
-        return emp;
-    } else {
+    // 发送要发送的数据的大小
+    int dataSize = requestData.size();
+    uint32_t temp0 = qToBigEndian(dataSize);
+    QByteArray data0((char*)&temp0, 4);
+    socket.write(data0);
+    socket.flush();
+
+    // 发送标志位
+    int flag = 3;
+    uint32_t temp1 = qToBigEndian(flag);
+    QByteArray data1((char*)&temp1, 4);
+    socket.write(data1);
+    socket.flush();
+
+    // 将 sql 查询交给服务端处理
+    socket.write(requestData);
+    socket.flush();
+
+    // 等待服务器的响应
+    if (!socket.waitForReadyRead()) {
+        qWarning() << "未接收到服务器的数据: " << socket.errorString();
         return Employee();
     }
+
+    QByteArray responseData = socket.readAll();
+
+    // 解析 Json 数据
+    QJsonDocument jsonResponse = QJsonDocument::fromJson(responseData);
+    if (!jsonResponse.isArray()) {
+        qWarning() << "无效的 Json 数据!";
+        return Employee();
+    }
+
+    QJsonArray jsonArray = jsonResponse.array();
+    for (const auto &jsonObj : jsonArray) {
+        if (jsonObj.isObject()) {
+            QJsonObject obj = jsonObj.toObject();
+
+            // 处理查询结果
+            Employee emp;
+            emp.setId(obj.value(EMP_ID).toString());
+            emp.setName(obj.value(EMP_NAME).toString());
+            emp.setAge(obj.value(EMP_AGE).toInt());
+            emp.setGender(obj.value(EMP_GENDER).toString());
+            emp.setPhone(obj.value(EMP_PHONE).toString());
+            emp.setEmail(obj.value(EMP_EMAIL).toString());
+            return emp;
+        }
+    }
+    return Employee();
 }
 
 Employee EmployeeModel::queryByName(QString name)
 {
-    QSqlQuery query;
+    // 尝试连接服务器
+    QTcpSocket socket;
+    socket.connectToHost(ipAddress, port);
+
+    if (!socket.waitForConnected()) {
+        qWarning() << "连接服务器失败: " << socket.errorString();
+        return Employee();
+    }
+
     QString sql = QString("SELECT * "
                           "FROM employee "
                           "WHERE name = '%1'").arg(name);
-    query.exec(sql);
+    QByteArray requestData = sql.toUtf8();
 
-    if (query.next()) {
-        Employee emp;
-        emp.setId(query.value(EMP_ID).toString());
-        emp.setName(query.value(EMP_NAME).toString());
-        emp.setAge(query.value(EMP_AGE).toInt());
-        emp.setGender(query.value(EMP_GENDER).toString());
-        emp.setPhone(query.value(EMP_PHONE).toString());
-        emp.setEmail(query.value(EMP_EMAIL).toString());
-        return emp;
-    } else {
+    // 发送要发送的数据的大小
+    int dataSize = requestData.size();
+    uint32_t temp0 = qToBigEndian(dataSize);
+    QByteArray data0((char*)&temp0, 4);
+    socket.write(data0);
+    socket.flush();
+
+    // 发送标志位
+    int flag = 3;
+    uint32_t temp1 = qToBigEndian(flag);
+    QByteArray data1((char*)&temp1, 4);
+    socket.write(data1);
+    socket.flush();
+
+    // 将 sql 查询交给服务端处理
+    socket.write(requestData);
+    socket.flush();
+
+    // 等待服务器的响应
+    if (!socket.waitForReadyRead()) {
+        qWarning() << "未接收到服务器的数据: " << socket.errorString();
         return Employee();
     }
+
+    QByteArray responseData = socket.readAll();
+
+    // 解析 Json 数据
+    QJsonDocument jsonResponse = QJsonDocument::fromJson(responseData);
+    if (!jsonResponse.isArray()) {
+        qWarning() << "无效的 Json 数据!";
+        return Employee();
+    }
+
+    QJsonArray jsonArray = jsonResponse.array();
+    for (const auto &jsonObj : jsonArray) {
+        if (jsonObj.isObject()) {
+            QJsonObject obj = jsonObj.toObject();
+
+            // 处理查询结果
+            Employee emp;
+            emp.setId(obj.value(EMP_ID).toString());
+            emp.setName(obj.value(EMP_NAME).toString());
+            emp.setAge(obj.value(EMP_AGE).toInt());
+            emp.setGender(obj.value(EMP_GENDER).toString());
+            emp.setPhone(obj.value(EMP_PHONE).toString());
+            emp.setEmail(obj.value(EMP_EMAIL).toString());
+            return emp;
+        }
+    }
+    return Employee();
 }
 
 bool EmployeeModel::insert(Employee &emp)
 {
-    QSqlQuery query;
+    // 尝试连接服务器
+    QTcpSocket socket;
+    socket.connectToHost(ipAddress, port);
+
+    if (!socket.waitForConnected()) {
+        qWarning() << "连接服务器失败: " << socket.errorString();
+        return false;
+    }
+
     QString sql = QString("INSERT INTO employee "
                           "VALUES ('%1', '%2', %3, '%4', '%5', '%6')").arg(
                           emp.getId(),
@@ -68,27 +172,83 @@ bool EmployeeModel::insert(Employee &emp)
                           emp.getGender(),
                           emp.getPhone(),
                           emp.getEmail());
-    return query.exec(sql);
+    QByteArray requestData = sql.toUtf8();
+
+    // 发送要发送的数据的大小
+    int dataSize = requestData.size();
+    uint32_t temp0 = qToBigEndian(dataSize);
+    QByteArray data0((char*)&temp0, 4);
+    socket.write(data0);
+    socket.flush();
+
+    // 发送标志位
+    int flag = 3;
+    uint32_t temp1 = qToBigEndian(flag);
+    QByteArray data1((char*)&temp1, 4);
+    socket.write(data1);
+    socket.flush();
+
+    // 将 sql 查询交给服务端处理
+    socket.write(requestData);
+    socket.flush();
+
+    return true;
 }
 
 bool EmployeeModel::remove(Employee &emp)
 {
-    QSqlQuery query;
+    // 尝试连接服务器
+    QTcpSocket socket;
+    socket.connectToHost(ipAddress, port);
+
+    if (!socket.waitForConnected()) {
+        qWarning() << "连接服务器失败: " << socket.errorString();
+        return false;
+    }
+
     QString sql = QString("DELETE FROM employee "
                           "WHERE id = '%1'").arg(emp.getId());
-    return query.exec(sql);
+    QByteArray requestData = sql.toUtf8();
+
+    // 发送要发送的数据的大小
+    int dataSize = requestData.size();
+    uint32_t temp0 = qToBigEndian(dataSize);
+    QByteArray data0((char*)&temp0, 4);
+    socket.write(data0);
+    socket.flush();
+
+    // 发送标志位
+    int flag = 3;
+    uint32_t temp1 = qToBigEndian(flag);
+    QByteArray data1((char*)&temp1, 4);
+    socket.write(data1);
+    socket.flush();
+
+    // 将 sql 查询交给服务端处理
+    socket.write(requestData);
+    socket.flush();
+
+    return true;
 }
 
 bool EmployeeModel::update(Employee &emp)
 {
-    QSqlQuery query;
+    // 尝试连接服务器
+    QTcpSocket socket;
+    socket.connectToHost(ipAddress, port);
+
+    if (!socket.waitForConnected()) {
+        qWarning() << "连接服务器失败: " << socket.errorString();
+        return false;
+    }
+
     QString sql = QString("UPDATE employee "
                           "SET "
-                              "name =     '%1', "
-                              "age =       %2, "
-                              "gender =   '%3', "
-                              "phone =    '%4', "
-                              "email =    '%5' "
+                          "name =     '%1', "
+                          "age =       %2, "
+                          "gender =   '%3', "
+                          "phone =    '%4', "
+                          "email =    '%5' "
                           "WHERE id = '%7'").arg(
                           emp.getName(),
                           QString::number(emp.getAge()),
@@ -96,28 +256,94 @@ bool EmployeeModel::update(Employee &emp)
                           emp.getPhone(),
                           emp.getEmail(),
                           emp.getId());
-    qDebug() << sql;
-    return query.exec(sql);
+    QByteArray requestData = sql.toUtf8();
+
+    // 发送要发送的数据的大小
+    int dataSize = requestData.size();
+    uint32_t temp0 = qToBigEndian(dataSize);
+    QByteArray data0((char*)&temp0, 4);
+    socket.write(data0);
+    socket.flush();
+
+    // 发送标志位
+    int flag = 3;
+    uint32_t temp1 = qToBigEndian(flag);
+    QByteArray data1((char*)&temp1, 4);
+    socket.write(data1);
+    socket.flush();
+
+    // 将 sql 查询交给服务端处理
+    socket.write(requestData);
+    socket.flush();
+
+    return true;
 }
 
 QVector<Employee> EmployeeModel::queryAll()
 {
     QVector<Employee> empVec{};
 
-    QSqlQuery query;
+    // 尝试连接服务器
+    QTcpSocket socket;
+    socket.connectToHost(ipAddress, port);
+
+    if (!socket.waitForConnected()) {
+        qWarning() << "连接服务器失败: " << socket.errorString();
+        return empVec;
+    }
+
     QString sql = QString("SELECT * "
                           "FROM employee");
-    query.exec(sql);
+    QByteArray requestData = sql.toUtf8();
 
-    while(query.next()) {
-        Employee emp;
-        emp.setId(query.value(EMP_ID).toString());
-        emp.setName(query.value(EMP_NAME).toString());
-        emp.setAge(query.value(EMP_AGE).toInt());
-        emp.setGender(query.value(EMP_GENDER).toString());
-        emp.setPhone(query.value(EMP_PHONE).toString());
-        emp.setEmail(query.value(EMP_EMAIL).toString());
-        empVec.push_back(emp);
+    // 发送要发送的数据的大小
+    int dataSize = requestData.size();
+    uint32_t temp0 = qToBigEndian(dataSize);
+    QByteArray data0((char*)&temp0, 4);
+    socket.write(data0);
+    socket.flush();
+
+    // 发送标志位
+    int flag = 3;
+    uint32_t temp1 = qToBigEndian(flag);
+    QByteArray data1((char*)&temp1, 4);
+    socket.write(data1);
+    socket.flush();
+
+    // 将 sql 查询交给服务端处理
+    socket.write(requestData);
+    socket.flush();
+
+    // 等待服务器的响应
+    if (!socket.waitForReadyRead()) {
+        qWarning() << "未接收到服务器的数据: " << socket.errorString();
+        return empVec;
+    }
+
+    QByteArray responseData = socket.readAll();
+
+    // 解析 Json 数据
+    QJsonDocument jsonResponse = QJsonDocument::fromJson(responseData);
+    if (!jsonResponse.isArray()) {
+        qWarning() << "无效的 Json 数据!";
+        return empVec;
+    }
+
+    QJsonArray jsonArray = jsonResponse.array();
+    for (const auto &jsonObj : jsonArray) {
+        if (jsonObj.isObject()) {
+            QJsonObject obj = jsonObj.toObject();
+
+            // 处理查询结果
+            Employee emp;
+            emp.setId(obj.value(EMP_ID).toString());
+            emp.setName(obj.value(EMP_NAME).toString());
+            emp.setAge(obj.value(EMP_AGE).toInt());
+            emp.setGender(obj.value(EMP_GENDER).toString());
+            emp.setPhone(obj.value(EMP_PHONE).toString());
+            emp.setEmail(obj.value(EMP_EMAIL).toString());
+            empVec.push_back(emp);
+        }
     }
     return empVec;
 }
@@ -126,7 +352,15 @@ QVector<Employee> EmployeeModel::queryAllByIdentity(QString identity)
 {
     QVector<Employee> empVec{};
 
-    QSqlQuery query;
+    // 尝试连接服务器
+    QTcpSocket socket;
+    socket.connectToHost(ipAddress, port);
+
+    if (!socket.waitForConnected()) {
+        qWarning() << "连接服务器失败: " << socket.errorString();
+        return empVec;
+    }
+
     QString sql = QString("SELECT A.id, "
                           "A.name, "
                           "A.age, "
@@ -136,17 +370,56 @@ QVector<Employee> EmployeeModel::queryAllByIdentity(QString identity)
                           "FROM employee AS A "
                           "INNER JOIN account AS B ON A.id = B.id "
                           "WHERE B.identity = '%1'").arg(identity);
-    query.exec(sql);
+    QByteArray requestData = sql.toUtf8();
 
-    while(query.next()) {
-        Employee emp;
-        emp.setId(query.value(EMP_ID).toString());
-        emp.setName(query.value(EMP_NAME).toString());
-        emp.setAge(query.value(EMP_AGE).toInt());
-        emp.setGender(query.value(EMP_GENDER).toString());
-        emp.setPhone(query.value(EMP_PHONE).toString());
-        emp.setEmail(query.value(EMP_EMAIL).toString());
-        empVec.push_back(emp);
+    // 发送要发送的数据的大小
+    int dataSize = requestData.size();
+    uint32_t temp0 = qToBigEndian(dataSize);
+    QByteArray data0((char*)&temp0, 4);
+    socket.write(data0);
+    socket.flush();
+
+    // 发送标志位
+    int flag = 3;
+    uint32_t temp1 = qToBigEndian(flag);
+    QByteArray data1((char*)&temp1, 4);
+    socket.write(data1);
+    socket.flush();
+
+    // 将 sql 查询交给服务端处理
+    socket.write(requestData);
+    socket.flush();
+
+    // 等待服务器的响应
+    if (!socket.waitForReadyRead()) {
+        qWarning() << "未接收到服务器的数据: " << socket.errorString();
+        return empVec;
+    }
+
+    QByteArray responseData = socket.readAll();
+
+    // 解析 Json 数据
+    QJsonDocument jsonResponse = QJsonDocument::fromJson(responseData);
+    if (!jsonResponse.isArray()) {
+        qWarning() << "无效的 Json 数据!";
+        return empVec;
+    }
+
+    QJsonArray jsonArray = jsonResponse.array();
+    for (const auto &jsonObj : jsonArray) {
+        if (jsonObj.isObject()) {
+            QJsonObject obj = jsonObj.toObject();
+
+            // 处理查询结果
+            Employee emp;
+            emp.setId(obj.value(EMP_ID).toString());
+            emp.setName(obj.value(EMP_NAME).toString());
+            emp.setAge(obj.value(EMP_AGE).toInt());
+            emp.setGender(obj.value(EMP_GENDER).toString());
+            emp.setPhone(obj.value(EMP_PHONE).toString());
+            emp.setEmail(obj.value(EMP_EMAIL).toString());
+            empVec.push_back(emp);
+        }
     }
     return empVec;
 }

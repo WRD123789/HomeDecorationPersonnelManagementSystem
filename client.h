@@ -3,6 +3,7 @@
 
 #include <QWidget>
 #include <QTreeWidgetItem>
+#include <QTcpServer>
 
 namespace Ui {
 class Client;
@@ -44,6 +45,7 @@ private slots:
 
 private:
     QPixmap bgImage;
+    QTcpSocket* m_tcp;
 };
 
 #endif // CLIENT_H

@@ -77,12 +77,6 @@ MainWindow::~MainWindow()
 
 void MainWindow::on_loginBtn_clicked()
 {
-    QSqlDatabase db = QSqlDatabase::database();
-    if (!db.isOpen()) {
-        ConnectDataBase connectDataBase;
-        connectDataBase.exec();
-    }
-
     // 根据账号和密码栏获取输入的字符串
     QString num = ui->accountLineEdit->text();
     QString pwd = ui->pwdLineEdit->text();

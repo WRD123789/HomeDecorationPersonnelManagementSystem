@@ -99,6 +99,56 @@ public:
         this->projManagerId = id;
     }
 
+    QString getImage0Path() const
+    {
+        return image0Path;
+    }
+
+    void setImage0Path(QString path)
+    {
+        this->image0Path = path;
+    }
+
+    QString getImage1Path() const
+    {
+        return image1Path;
+    }
+
+    void setImage1Path(QString path)
+    {
+        this->image1Path = path;
+    }
+
+    QString getImage2Path() const
+    {
+        return image2Path;
+    }
+
+    void setImage2Path(QString path)
+    {
+        this->image2Path = path;
+    }
+
+    QString getImage3Path() const
+    {
+        return image3Path;
+    }
+
+    void setImage3Path(QString path)
+    {
+        this->image3Path = path;
+    }
+
+    QString getTablePath() const
+    {
+        return tablePath;
+    }
+
+    void setTablePath(QString path)
+    {
+        this->tablePath = path;
+    }
+
 private:
     QString id;
     QString name;
@@ -109,6 +159,11 @@ private:
     QString salesmanId;
     QString designerId;
     QString projManagerId;
+    QString image0Path;
+    QString image1Path;
+    QString image2Path;
+    QString image3Path;
+    QString tablePath;
 };
 
 #endif // PROJECT_H

@@ -20,6 +20,7 @@ private slots:
     void onCancelBtnClicked();
     void onModifyBtnClicked();
     void onProjDetailBtnClicked();
+    void onDetailBtnClicked();
 
 private:
     QMap<QString, Project> projMap;

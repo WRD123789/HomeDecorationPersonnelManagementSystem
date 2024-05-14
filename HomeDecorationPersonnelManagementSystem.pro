@@ -1,4 +1,4 @@
-QT       += core gui sql
+QT       += core gui sql network axcontainer
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -31,6 +31,7 @@ SOURCES += \
     financeclient.cpp \
     financemodel.cpp \
     financeprojtable.cpp \
+    imageviewerdialog.cpp \
     information.cpp \
     infotable.cpp \
     main.cpp \
@@ -46,7 +47,9 @@ SOURCES += \
     projectmanagerclient.cpp \
     projectmanagertable.cpp \
     projectmodel.cpp \
+    recvfile.cpp \
     salesmanclient.cpp \
+    sendfile.cpp \
     solvedprojecttable.cpp
 
 HEADERS += \
@@ -72,10 +75,13 @@ HEADERS += \
     employee.h \
     employeeinfo.h \
     employeemodel.h \
+    exceldialog.h \
     finance.h \
     financeclient.h \
     financemodel.h \
     financeprojtable.h \
+    globalvariable.h \
+    imageviewerdialog.h \
     information.h \
     infotable.h \
     mainwindow.h \
@@ -91,11 +97,14 @@ HEADERS += \
     projectmanagerclient.h \
     projectmanagertable.h \
     projectmodel.h \
+    recvfile.h \
     salesmanclient.h \
+    sendfile.h \
     solvedprojecttable.h
 
 FORMS += \
     client.ui \
+    connectdatabase.ui \
     mainwindow.ui \
     infotable.ui \
     information.ui \
@@ -104,8 +113,7 @@ FORMS += \
     addcustomer.ui \
     modifyfinance.ui \
     addemployee.ui \
-    modifycustomer.ui \
-    connectdatabase.ui
+    modifycustomer.ui
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

@@ -17,6 +17,7 @@ private:
 
 private slots:
     void onProjDetailBtnClicked();
+    void onDetailBtnClicked();
 
 private:
     QMap<QString, Project> projMap;

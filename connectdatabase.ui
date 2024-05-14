@@ -7,11 +7,11 @@
     <x>0</x>
     <y>0</y>
     <width>218</width>
-    <height>184</height>
+    <height>199</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>连接数据库</string>
+   <string>连接</string>
   </property>
   <property name="styleSheet">
    <string notr="true">QDialog {
@@ -175,13 +175,13 @@ QMessageBox {
       <widget class="QLabel" name="ipLabel">
        <property name="font">
         <font>
-         <family>Microsoft JhengHei UI Light</family>
+         <family>宋体</family>
          <pointsize>12</pointsize>
          <bold>true</bold>
         </font>
        </property>
        <property name="text">
-        <string>IP</string>
+        <string>数据库 IP</string>
        </property>
       </widget>
      </item>
@@ -201,13 +201,13 @@ QMessageBox {
       <widget class="QLabel" name="portLabel">
        <property name="font">
         <font>
-         <family>Microsoft JhengHei UI Light</family>
+         <family>宋体</family>
          <pointsize>12</pointsize>
          <bold>true</bold>
         </font>
        </property>
        <property name="text">
-        <string>Port</string>
+        <string>数据库 Port</string>
        </property>
       </widget>
      </item>
@@ -233,7 +233,7 @@ QMessageBox {
         </font>
        </property>
        <property name="text">
-        <string>账号</string>
+        <string>数据库账号</string>
        </property>
       </widget>
      </item>
@@ -259,7 +259,7 @@ QMessageBox {
         </font>
        </property>
        <property name="text">
-        <string>密码</string>
+        <string>数据库密码</string>
        </property>
       </widget>
      </item>

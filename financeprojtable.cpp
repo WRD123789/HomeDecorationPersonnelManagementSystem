@@ -2,7 +2,11 @@
 #include "ui_infotable.h"
 #include "projectinfo.h"
 #include "modifyfinance.h"
+#include "recvfile.h"
 
+#include <QAxObject>
+#include <QAxWidget>
+#include <QBuffer>
 #include <QMessageBox>
 
 FinanceProjTable::FinanceProjTable(QWidget *parent)
@@ -24,6 +28,7 @@ QVector<QString> FinanceProjTable::setColName()
     nameVec.push_back("定金");
     nameVec.push_back("成本");
     nameVec.push_back("总金");
+    nameVec.push_back("预算表");
     nameVec.push_back("提交");
     nameVec.push_back("修改");
     nameVec.push_back("取消");
@@ -79,12 +84,16 @@ void FinanceProjTable::showData()
         QPushButton* button1 = new QPushButton("查看", ui->tableWidget);
         QPushButton* button3 = new QPushButton("修改", ui->tableWidget);
         QPushButton* button4 = new QPushButton("取消", ui->tableWidget);
+        QPushButton* button5 = new QPushButton("查看", ui->tableWidget);
+
         connect(button1, &QPushButton::clicked,
                 this, &FinanceProjTable::onProjDetailBtnClicked);
         connect(button3, &QPushButton::clicked,
                 this, &FinanceProjTable::onModifyBtnClicked);
         connect(button4, &QPushButton::clicked,
                 this, &FinanceProjTable::onCancelBtnClicked);
+        connect(button5, &QPushButton::clicked,
+                this, &FinanceProjTable::onDetailBtnClicked);
         QTableWidgetItem* item1 = new QTableWidgetItem(proj.getId());
         QTableWidgetItem* item2 = new QTableWidgetItem(proj.getName());
         QTableWidgetItem* item3 = new QTableWidgetItem(proj.getProgress());
@@ -123,9 +132,10 @@ void FinanceProjTable::showData()
         ui->tableWidget->setItem(row, 7, item7);
         ui->tableWidget->setItem(row, 8, item8);
         ui->tableWidget->setCellWidget(row, 2, button1);
-        ui->tableWidget->setCellWidget(row, 9, button2);
-        ui->tableWidget->setCellWidget(row, 10, button3);
-        ui->tableWidget->setCellWidget(row, 11, button4);
+        ui->tableWidget->setCellWidget(row, 9, button5);
+        ui->tableWidget->setCellWidget(row, 10, button2);
+        ui->tableWidget->setCellWidget(row, 11, button3);
+        ui->tableWidget->setCellWidget(row, 12, button4);
         ui->tableWidget->setVerticalHeaderItem(
             row, new QTableWidgetItem(QString::number(row + 1)));
         ++row;
@@ -202,5 +212,56 @@ void FinanceProjTable::onModifyBtnClicked()
         Finance fin = finModel.queryByProjId(projId);
         ModifyFinance modifyFin(fin);
         modifyFin.exec();
+    }
+}
+
+void FinanceProjTable::onDetailBtnClicked()
+{
+    QPushButton *clickedBtn = qobject_cast<QPushButton *>(sender());
+    if (clickedBtn) {
+        int row = ui->tableWidget->indexAt(clickedBtn->pos()).row();
+        int column = ui->tableWidget->indexAt(clickedBtn->pos()).column();
+        QString projId = ui->tableWidget->item(row, 0)->text();
+        Project proj = projModel.queryById(projId);
+
+        QString sPath = proj.getTablePath();
+
+        RecvFile *recv = new RecvFile(sPath);
+        QByteArray data = recv->recvFile();
+
+        if (column == 10) {
+            QAxObject *excel = new QAxObject("Excel.Application", this);
+            excel->setProperty("Visible", true);
+
+            QAxObject *workbooks = excel->querySubObject("Workbooks");
+            QAxObject *workbook = workbooks->querySubObject("Add");
+
+            QAxObject *worksheets = workbook->querySubObject("Worksheets(int)", 1);
+            QAxObject *worksheet = worksheets->querySubObject("Activate()");
+
+            // 将 QByteArray 类型的数据写入 Excel 表格
+            QBuffer buffer(const_cast<QByteArray*>(&data)); // 创建一个 QBuffer 对象以便读取数据
+            buffer.open(QIODevice::ReadOnly);
+
+            QVariant var(buffer.data()); // 将数据转换为 QVariant
+            QAxObject *range = worksheet->querySubObject("Range(const QVariant&)", "A1");
+            range->dynamicCall("PasteSpecial(QVariant)", var);
+
+            // 创建 QAxWidget 并将其与 Excel 实例关联
+            QAxWidget *excelWidget = new QAxWidget(this);
+            excelWidget->setControl("Excel.Application");
+            excelWidget->dynamicCall("SetControl(const QString&)", excel->control());
+            excelWidget->setProperty("Dynamic", true); // 启用动态属性和方法
+
+            // 将 Excel 表格置于对话框中间
+            excelWidget->resize(800, 600); // 调整表格大小
+            excelWidget->show();
+
+            QPoint center = this->geometry().center();
+            QPoint topLeft(center.x() - excelWidget->width() / 2, center.y() - excelWidget->height() / 2);
+            excelWidget->move(topLeft);
+        } else {
+            QMessageBox::information(this, "提示", "文件未上传!");
+        }
     }
 }

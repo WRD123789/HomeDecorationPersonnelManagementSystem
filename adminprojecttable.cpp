@@ -2,6 +2,9 @@
 #include "ui_infotable.h"
 #include "employeemodel.h"
 #include "projectinfo.h"
+#include "exceldialog.h"
+#include "imageviewerdialog.h"
+#include "recvfile.h"
 
 #include <QComboBox>
 #include <QMessageBox>
@@ -25,6 +28,11 @@ QVector<QString> AdminProjectTable::setColName()
     nameVec.push_back("业务员");
     nameVec.push_back("设计师");
     nameVec.push_back("项目经理");
+    nameVec.push_back("量房设计图");
+    nameVec.push_back("平面设计图");
+    nameVec.push_back("深入图");
+    nameVec.push_back("效果图");
+    nameVec.push_back("预算表");
     nameVec.push_back("修改");
     nameVec.push_back("取消");
     return nameVec;
@@ -52,12 +60,27 @@ void AdminProjectTable::showData()
         QPushButton* button1 = new QPushButton("查看", ui->tableWidget);
         QPushButton* button2 = new QPushButton("修改", ui->tableWidget);
         QPushButton* button3 = new QPushButton("取消", ui->tableWidget);
+        QPushButton* button4 = new QPushButton("查看", ui->tableWidget);
+        QPushButton* button5 = new QPushButton("查看", ui->tableWidget);
+        QPushButton* button6 = new QPushButton("查看", ui->tableWidget);
+        QPushButton* button7 = new QPushButton("查看", ui->tableWidget);
+        QPushButton* button8 = new QPushButton("查看", ui->tableWidget);
         connect(button1, &QPushButton::clicked,
                 this, &AdminProjectTable::onProjDetailBtnClicked);
         connect(button2, &QPushButton::clicked,
                 this, &AdminProjectTable::onModifyBtnClicked);
         connect(button3, &QPushButton::clicked,
                 this, &AdminProjectTable::onCancelBtnClicked);
+        connect(button4, &QPushButton::clicked,
+                this, &AdminProjectTable::onDetailBtnClicked);
+        connect(button5, &QPushButton::clicked,
+                this, &AdminProjectTable::onDetailBtnClicked);
+        connect(button6, &QPushButton::clicked,
+                this, &AdminProjectTable::onDetailBtnClicked);
+        connect(button7, &QPushButton::clicked,
+                this, &AdminProjectTable::onDetailBtnClicked);
+        connect(button8, &QPushButton::clicked,
+                this, &AdminProjectTable::onDetailBtnClicked);
         QTableWidgetItem* item1 = new QTableWidgetItem(projId);
         QTableWidgetItem* item2 = new QTableWidgetItem(proj.getName());
         QTableWidgetItem* item3 = new QTableWidgetItem(proj.getProgress());
@@ -109,8 +132,13 @@ void AdminProjectTable::showData()
         ui->tableWidget->setItem(row, 4, item4);
         ui->tableWidget->setItem(row, 5, item5);
         ui->tableWidget->setCellWidget(row, 2, button1);
-        ui->tableWidget->setCellWidget(row, 9, button2);
-        ui->tableWidget->setCellWidget(row, 10, button3);
+        ui->tableWidget->setCellWidget(row, 9, button4);
+        ui->tableWidget->setCellWidget(row, 10, button5);
+        ui->tableWidget->setCellWidget(row, 11, button6);
+        ui->tableWidget->setCellWidget(row, 12, button7);
+        ui->tableWidget->setCellWidget(row, 13, button8);
+        ui->tableWidget->setCellWidget(row, 14, button2);
+        ui->tableWidget->setCellWidget(row, 15, button3);
         ui->tableWidget->setCellWidget(row, 6, box1);
         ui->tableWidget->setCellWidget(row, 7, box2);
         ui->tableWidget->setCellWidget(row, 8, box3);
@@ -183,6 +211,55 @@ void AdminProjectTable::onCancelBtnClicked()
             ProjectModel().update(proj);
 
             on_refreshPushButton_clicked();
+        }
+    }
+}
+
+void AdminProjectTable::onDetailBtnClicked()
+{
+    QPushButton *clickedBtn = qobject_cast<QPushButton *>(sender());
+    if (clickedBtn) {
+        int row = ui->tableWidget->indexAt(clickedBtn->pos()).row();
+        int column = ui->tableWidget->indexAt(clickedBtn->pos()).column();
+        QString projId = ui->tableWidget->item(row, 0)->text();
+        Project proj = projModel.queryById(projId);
+
+        QString sPath = "";
+        if (column == 9)
+            sPath = proj.getImage0Path();
+        else if (column == 10)
+            sPath = proj.getImage1Path();
+        else if (column == 11)
+            sPath = proj.getImage2Path();
+        else if (column == 12)
+            sPath = proj.getImage3Path();
+        else if (column == 13)
+            sPath = proj.getTablePath();
+        else
+            return;
+
+        RecvFile *recv = new RecvFile(sPath);
+        QByteArray data = recv->recvFile();
+
+        if (column == 13) {
+            if (data != "") {
+                ExcelDialog dialog(data);
+                dialog.exec();
+            } else {
+                QMessageBox::information(this, "提示", "文件未上传!");
+            }
+        } else {
+            if (data != "") {
+                // 展示图片
+                QPixmap image;
+                image.loadFromData(data);
+
+                ImageViewerDialog imageDialog;
+                imageDialog.setImage(image);
+                imageDialog.exec();
+            } else {
+                QMessageBox::information(this, "提示", "文件未上传!");
+            }
         }
     }
 }
